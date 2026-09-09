@@ -3,6 +3,7 @@ from langchain_core.utils.uuid import uuid7
 from langgraph.checkpoint.memory import InMemorySaver
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from dataclasses import dataclass
 
 load_dotenv()
 
@@ -10,6 +11,10 @@ class Answer(BaseModel):
     summary: str
     confidence: float
 
+#dataclass automatically adds __init__(): to the class so that context object can store user_id
+@dataclass
+class Context:
+    user_id: str
 
 # checkpointer stores the agent state , after execution 
 agent = create_agent(
@@ -47,7 +52,12 @@ result = agent.invoke(
             }
         ]
     },
-    config=config
+    config=config,
+    context=Context(user_id="user_123")
 )
 
 print(result["structured_response"])
+
+#passing context(per-run configuration liker user_id , api_key etc. to tools and middleware )
+# define the shape of that data with context_schema
+
